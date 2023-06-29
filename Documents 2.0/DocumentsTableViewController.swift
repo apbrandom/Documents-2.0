@@ -23,13 +23,12 @@ class DocumentsTableViewController: UITableViewController {
     
     //MARK: - Private
     
-    func setupTableView() {
+    private func setupTableView() {
         title = "Documets"
         imageNames = FileManagerHelper.shared.retrieveAllImageNames()
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "PhotoCell")
     }
     
-    func setupPickerController() {
+    private func setupPickerController() {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = 1
         configuration.filter = .images
@@ -49,7 +48,6 @@ class DocumentsTableViewController: UITableViewController {
         return imageNames.count
     }
     
-    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "PhotoCell", for: indexPath)
         var contentConfiguration = UIListContentConfiguration.cell()
@@ -64,11 +62,9 @@ class DocumentsTableViewController: UITableViewController {
         }
         
         cell.contentConfiguration = contentConfiguration
-        
         return cell
     }
 
-    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let imageName = imageNames[indexPath.row]

@@ -57,6 +57,7 @@ class FileManagerHelper {
             return []
         }
     }
+    
     // delete image with name
     func deleteImage(withName name: String) -> Bool {
         let imagePath = getDocumentsDirectory().appendingPathComponent(name)
