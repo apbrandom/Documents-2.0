@@ -32,11 +32,18 @@
                         </connections>
                     </tableView>
                     <navigationItem key="navigationItem" id="eum-kt-U0J">
-                        <barButtonItem key="rightBarButtonItem" title="Item" image="plus" catalog="system" id="We6-ms-ANr">
-                            <connections>
-                                <action selector="addPhotoAction:" destination="bzh-3O-7EA" id="Fcl-DR-WDj"/>
-                            </connections>
-                        </barButtonItem>
+                        <rightBarButtonItems>
+                            <barButtonItem title="Item" image="photo" catalog="system" id="We6-ms-ANr">
+                                <connections>
+                                    <action selector="addPhotoAction:" destination="bzh-3O-7EA" id="Fcl-DR-WDj"/>
+                                </connections>
+                            </barButtonItem>
+                            <barButtonItem title="Item" image="folder" catalog="system" id="0Fl-Bm-wOt">
+                                <connections>
+                                    <action selector="createNewFolderAction:" destination="bzh-3O-7EA" id="zuC-78-uJK"/>
+                                </connections>
+                            </barButtonItem>
+                        </rightBarButtonItems>
                     </navigationItem>
                 </tableViewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5Y4-92-HiB" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -63,7 +70,8 @@
         </scene>
     </scenes>
     <resources>
-        <image name="plus" catalog="system" width="128" height="113"/>
+        <image name="folder" catalog="system" width="128" height="96"/>
+        <image name="photo" catalog="system" width="128" height="93"/>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

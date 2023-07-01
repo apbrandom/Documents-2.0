@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CB30A7A52A4E04E8008B72F5 /* ImageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB30A7A42A4E04E8008B72F5 /* ImageDetailViewController.swift */; };
+		CBB67FC52A4F0E4100FD3F6D /* ContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB67FC42A4F0E4100FD3F6D /* ContentType.swift */; };
 		CBEC19262A4DAAF30049406B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEC19252A4DAAF30049406B /* AppDelegate.swift */; };
 		CBEC19282A4DAAF30049406B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEC19272A4DAAF30049406B /* SceneDelegate.swift */; };
 		CBEC192D2A4DAAF30049406B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CBEC192B2A4DAAF30049406B /* Main.storyboard */; };
@@ -17,6 +19,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CB30A7A42A4E04E8008B72F5 /* ImageDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageDetailViewController.swift; sourceTree = "<group>"; };
+		CBB67FC42A4F0E4100FD3F6D /* ContentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentType.swift; sourceTree = "<group>"; };
 		CBEC19222A4DAAF30049406B /* Documents 2.0.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Documents 2.0.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CBEC19252A4DAAF30049406B /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CBEC19272A4DAAF30049406B /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -60,8 +64,10 @@
 			children = (
 				CBEC19252A4DAAF30049406B /* AppDelegate.swift */,
 				CBEC19272A4DAAF30049406B /* SceneDelegate.swift */,
+				CBB67FC42A4F0E4100FD3F6D /* ContentType.swift */,
 				CBEC193B2A4DAB8C0049406B /* FileMangerHelper.swift */,
 				CBEC19392A4DAB350049406B /* DocumentsTableViewController.swift */,
+				CB30A7A42A4E04E8008B72F5 /* ImageDetailViewController.swift */,
 				CBEC192B2A4DAAF30049406B /* Main.storyboard */,
 				CBEC192E2A4DAAF30049406B /* Assets.xcassets */,
 				CBEC19302A4DAAF30049406B /* LaunchScreen.storyboard */,
@@ -145,6 +151,8 @@
 				CBEC193A2A4DAB350049406B /* DocumentsTableViewController.swift in Sources */,
 				CBEC19282A4DAAF30049406B /* SceneDelegate.swift in Sources */,
 				CBEC193C2A4DAB8C0049406B /* FileMangerHelper.swift in Sources */,
+				CB30A7A52A4E04E8008B72F5 /* ImageDetailViewController.swift in Sources */,
+				CBB67FC52A4F0E4100FD3F6D /* ContentType.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
