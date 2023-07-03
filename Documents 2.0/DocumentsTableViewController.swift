@@ -16,11 +16,11 @@ class DocumentsTableViewController: UITableViewController {
     }
     
     @IBAction func createNewFolderAction(_ sender: Any) {
-        let newFolderName = generateName(for: .folder)
-        let folderCreated = FileManagerHelper.shared.creareNewFolder(withName: newFolderName)
+        let newFolderName = FileManagerHelper.shared.generateName(for: .folder)
+        let folderCreated = FileManagerHelper.shared.createNewFolder(withName: newFolderName)
         
         if folderCreated {
-                items.append(newFolderName)
+            items.insert(newFolderName, at: 0)
                 tableView.reloadData()
             }
     }
@@ -34,7 +34,7 @@ class DocumentsTableViewController: UITableViewController {
     //MARK: - Private
     
     private func setupTableView() {
-        title = "Documets"
+        title = "Documents"
         let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
         let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
         items = images + folders
@@ -50,24 +50,7 @@ class DocumentsTableViewController: UITableViewController {
         self.present(picker, animated: true)
     }
     
-    private func generateName(for type: ContentType) -> String {
-        var counter = 0
-        var name: String
-        
-        repeat {
-            switch type {
-            case .image:
-                name = "image" + (counter == 0 ? "" : "_\(counter)") + ".jpeg"
-            case .folder:
-                name = "New Folder" + (counter == 0 ? "" : " \(counter)")
-            }
-            counter += 1
-        } while items.contains(name)
-        
-        return name
-    }
-    
-    // MARK: - Table view data source
+    // MARK: - UITableViewDataSource Methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return items.count
@@ -87,15 +70,15 @@ class DocumentsTableViewController: UITableViewController {
         
         var secondaryText = ""
         
-        if let creationDate = FileManagerHelper.shared.retrieveFileCreationDate(withName: imageName) {
+        if let creationDate = FileManagerHelper.shared.retrieveFileAttribute(.creationDate, withName: imageName) as? Date {
             let formatter = DateFormatter()
             formatter.dateStyle = .short
             formatter.timeStyle = .short
             secondaryText += formatter.string(from: creationDate)
         }
         
-        if let fileSize = FileManagerHelper.shared.retrieveFileSize(withName: imageName) {
-            let fileSizeString = ByteCountFormatter.string(fromByteCount: Int64(fileSize), countStyle: .file)
+        if let fileSize = FileManagerHelper.shared.retrieveFileAttribute(.size, withName: imageName) as? NSNumber {
+            let fileSizeString = ByteCountFormatter.string(fromByteCount: fileSize.int64Value, countStyle: .file)
             secondaryText += secondaryText.isEmpty ? fileSizeString : " | \(fileSizeString)"
         }
         
@@ -119,7 +102,6 @@ class DocumentsTableViewController: UITableViewController {
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
-    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let imageName = items[indexPath.row]
@@ -134,9 +116,7 @@ class DocumentsTableViewController: UITableViewController {
 // MARK: - PHPickerViewControllerDelegate
 
 extension DocumentsTableViewController: PHPickerViewControllerDelegate {
-    
     func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        
         dismiss(animated: true)
         
         guard let itemProvider = results.first?.itemProvider,
@@ -144,10 +124,10 @@ extension DocumentsTableViewController: PHPickerViewControllerDelegate {
         
         itemProvider.loadObject(ofClass: UIImage.self) { [weak self] image, error in
             if let image = image as? UIImage {
-                let imageName = self?.generateName(for: .image)
-                if let imageName = imageName, FileManagerHelper.shared.saveImage(image, withName: imageName) {
+                let imageName = FileManagerHelper.shared.generateName(for: .image)
+                if FileManagerHelper.shared.saveImage(image, withName: imageName) {
                     DispatchQueue.main.async {
-                        self?.items.append(imageName)
+                        self?.items.insert(imageName, at: 0)
                         self?.tableView.reloadData()
                     }
                 }

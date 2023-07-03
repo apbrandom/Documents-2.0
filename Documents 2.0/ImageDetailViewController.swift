@@ -8,27 +8,16 @@
 import UIKit
 
 class ImageDetailViewController: UIViewController {
-   
     var image: UIImage?
     var imageView: UIImageView!
-        
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         imageView = UIImageView(frame: view.bounds)
         imageView.contentMode = .scaleAspectFit
+        imageView.image = self.image
         view.addSubview(imageView)
-        
-        // Download image 
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            guard let strongSelf = self else { return }
-            
-            // space for image filter
-            
-            DispatchQueue.main.async {
-                // Updating the user interface in the main thread
-                strongSelf.imageView.image = strongSelf.image
-            }
-        }
     }
 }
+

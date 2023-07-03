@@ -9,23 +9,50 @@ import UIKit
 
 class FileManagerHelper {
     
-    // Singleton instance to access the FileManager
     static let shared = FileManagerHelper()
     
     private init() { }
     
-    // Get Document Directory
-    func getDocumentsDirectory() -> URL {
+    private func getDocumentsDirectory() -> URL {
         let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
         return path[0]
     }
     
-    // save a new folder to Documents Directory
-    func creareNewFolder(withName name: String) -> Bool {
-        let folderURL = getDocumentsDirectory().appendingPathComponent(name, isDirectory: true)
-        
+    private func fileURL(forName name: String) -> URL {
+        return getDocumentsDirectory().appendingPathComponent(name)
+    }
+    
+    func existingItems() -> [String] {
         do {
-            try FileManager.default.createDirectory(at: folderURL, withIntermediateDirectories: true)
+            return try FileManager.default.contentsOfDirectory(atPath: getDocumentsDirectory().path)
+        } catch {
+            print("Error retrieving contents of directory: \(error)")
+            return []
+        }
+    }
+    
+    func generateName(for type: ContentType) -> String {
+        let existingItems = self.existingItems()
+        var counter = 0
+        var name: String
+        
+        repeat {
+            switch type {
+            case .image:
+                name = "image" + (counter == 0 ? "" : "_\(counter)") + ".jpeg"
+            case .folder:
+                name = "New Folder" + (counter == 0 ? "" : "_\(counter)")
+            }
+            counter += 1
+        } while existingItems.contains(name)
+        
+        return name
+    }
+    
+    func createNewFolder(withName name: String) -> Bool {
+        let folderPath = fileURL(forName: name)
+        do {
+            try FileManager.default.createDirectory(at: folderPath, withIntermediateDirectories: true)
             return true
         } catch {
             print("Error creating folder: \(error)")
@@ -33,88 +60,67 @@ class FileManagerHelper {
         }
     }
     
-    // Save Image to Document Directory
     func saveImage(_ image: UIImage, withName name: String) -> Bool {
-        let imagePath = getDocumentsDirectory().appending(component: name)
-        
+        let imagePath = fileURL(forName: name)
         guard let jpegData = image.jpegData(compressionQuality: 0.8) else { return false }
-        
         do {
             try jpegData.write(to: imagePath)
             return true
         } catch {
-            print("Error savig image: \(error)")
+            print("Error saving image: \(error)")
             return false
         }
     }
     
-    // Retrieve Image from Document Directory
     func retrieveImage(withName name: String) -> UIImage? {
-        let fileURL = getDocumentsDirectory().appending(component: name)
+        let fileURL = fileURL(forName: name)
         do {
             let imageData = try Data(contentsOf: fileURL)
             return UIImage(data: imageData)
         } catch {
-            print("Error loading image : \(error)")
-        }
-        return nil
-    }
-    
-    func retrieveContent(ofType type: ContentType) -> [String] {
-            do {
-                let files = try FileManager.default.contentsOfDirectory(atPath: getDocumentsDirectory().path)
-                
-                switch type {
-                case .image:
-                    return files.filter { $0.hasSuffix(".jpg") || $0.hasSuffix(".jpeg") }
-                    
-                case .folder:
-                    return files.filter { file in
-                        var isDir : ObjCBool = false
-                        let fullPath = getDocumentsDirectory().appendingPathComponent(file).path
-                        FileManager.default.fileExists(atPath: fullPath, isDirectory: &isDir)
-                        return isDir.boolValue
-                    }
-                }
-            } catch {
-                print("Error reading contents of directory: \(error)")
-                return []
-            }
-        }
-
-    
-    // delete image with name
-    func deleteImage(withName name: String) -> Bool {
-        let imagePath = getDocumentsDirectory().appending(component: name)
-        do {
-            try FileManager.default.removeItem(at: imagePath)
-            return true
-        } catch {
-            print("Error deliting image: \(error)")
-            return false
-        }
-    }
-    
-    // retrieve creation date of the file with given name
-    func retrieveFileCreationDate(withName name: String) -> Date? {
-        let fileURL = getDocumentsDirectory().appending(component: name)
-        do {
-            let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.relativePath)
-            return attributes[FileAttributeKey.creationDate] as? Date
-        } catch {
-            print("Error retrieving file creation date: \(error)")
+            print("Error loading image: \(error)")
             return nil
         }
     }
     
-    // retrieve file size
-    func retrieveFileSize(withName name: String) -> UInt64? {
-        let fileURL = getDocumentsDirectory().appending(component: name)
+    func retrieveContent(ofType type: ContentType) -> [String] {
         do {
-            let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.relativePath)
-            return attributes[FileAttributeKey.size] as? UInt64
+            let files = try FileManager.default.contentsOfDirectory(atPath: getDocumentsDirectory().path)
+            switch type {
+            case .image:
+                return files.filter { $0.hasSuffix(".jpg") || $0.hasSuffix(".jpeg") }
+            case .folder:
+                return files.filter { file in
+                    var isDir: ObjCBool = false
+                    let fullPath = fileURL(forName: file).path
+                    FileManager.default.fileExists(atPath: fullPath, isDirectory: &isDir)
+                    return isDir.boolValue
+                }
+            }
         } catch {
-            print("Error retrieving file size: \(error)")
+            print("Error reading contents of directory: \(error)")
+            return []
+        }
+    }
+    
+    func deleteImage(withName name: String) -> Bool {
+        let imagePath = fileURL(forName: name)
+        do {
+            try FileManager.default.removeItem(at: imagePath)
+            return true
+        } catch {
+            print("Error deleting image: \(error)")
+            return false
+        }
+    }
+    
+    func retrieveFileAttribute(_ attribute: FileAttributeKey, withName name: String) -> Any? {
+        let fileURL = fileURL(forName: name)
+        do {
+            let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+            return attributes[attribute]
+        } catch {
+            print("Error retrieving file attribute: \(error)")
             return nil
         }
     }
