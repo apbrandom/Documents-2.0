@@ -30,25 +30,6 @@ class DocumentsTableViewController: UITableViewController {
         
         setupTableView()
     }
-
-    //MARK: - Private
-    
-    private func setupTableView() {
-        title = "Documents"
-        let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
-        let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
-        items = images + folders
-    }
-    
-    private func setupPickerController() {
-        var configuration = PHPickerConfiguration()
-        configuration.selectionLimit = 1
-        configuration.filter = .images
-        
-        let picker = PHPickerViewController(configuration: configuration)
-        picker.delegate = self
-        self.present(picker, animated: true)
-    }
     
     // MARK: - UITableViewDataSource Methods
     
@@ -60,30 +41,15 @@ class DocumentsTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "PhotoCell", for: indexPath)
         var contentConfiguration = UIListContentConfiguration.cell()
         
-        let imageName = items[indexPath.row]
+        let itemName = items[indexPath.row]
         
-        if let image = FileManagerHelper.shared.retrieveImage(withName: imageName) {
-            contentConfiguration.image = image
-            contentConfiguration.imageProperties.maximumSize = CGSize(width: 40, height: 40)
-            contentConfiguration.imageProperties.cornerRadius = 5
+        if let image = FileManagerHelper.shared.retrieveImage(withName: itemName) {
+            configureImageContent(&contentConfiguration, with: image)
         }
         
-        var secondaryText = ""
-        
-        if let creationDate = FileManagerHelper.shared.retrieveFileAttribute(.creationDate, withName: imageName) as? Date {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .short
-            formatter.timeStyle = .short
-            secondaryText += formatter.string(from: creationDate)
-        }
-        
-        if let fileSize = FileManagerHelper.shared.retrieveFileAttribute(.size, withName: imageName) as? NSNumber {
-            let fileSizeString = ByteCountFormatter.string(fromByteCount: fileSize.int64Value, countStyle: .file)
-            secondaryText += secondaryText.isEmpty ? fileSizeString : " | \(fileSizeString)"
-        }
-        
+        let secondaryText = createSecondaryText(for: itemName)
         contentConfiguration.secondaryText = secondaryText
-        contentConfiguration.text = imageName
+        contentConfiguration.text = itemName
 
         cell.contentConfiguration = contentConfiguration
         return cell
@@ -110,6 +76,49 @@ class DocumentsTableViewController: UITableViewController {
                 tableView.deleteRows(at: [indexPath], with: .fade)
             }
         }
+    }
+    
+    //MARK: - Private
+    
+    private func setupTableView() {
+        title = "Documents"
+        let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
+        let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
+        items = images + folders
+    }
+    
+    private func setupPickerController() {
+        var configuration = PHPickerConfiguration()
+        configuration.selectionLimit = 1
+        configuration.filter = .images
+        
+        let picker = PHPickerViewController(configuration: configuration)
+        picker.delegate = self
+        self.present(picker, animated: true)
+    }
+    
+    private func configureImageContent(_ contentConfiguration: inout UIListContentConfiguration, with image: UIImage) {
+        contentConfiguration.image = image
+        contentConfiguration.imageProperties.maximumSize = CGSize(width: 40, height: 40)
+        contentConfiguration.imageProperties.cornerRadius = 5
+    }
+
+    private func createSecondaryText(for itemName: String) -> String {
+        var secondaryText = ""
+        
+        if let creationDate = FileManagerHelper.shared.retrieveFileAttribute(.creationDate, withName: itemName) as? Date {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .short
+            formatter.timeStyle = .short
+            secondaryText += formatter.string(from: creationDate)
+        }
+        
+        if let fileSize = FileManagerHelper.shared.retrieveFileAttribute(.size, withName: itemName) as? NSNumber {
+            let fileSizeString = ByteCountFormatter.string(fromByteCount: fileSize.int64Value, countStyle: .file)
+            secondaryText += secondaryText.isEmpty ? fileSizeString : " | \(fileSizeString)"
+        }
+        
+        return secondaryText
     }
 }
 

@@ -45,7 +45,6 @@ class FileManagerHelper {
             }
             counter += 1
         } while existingItems.contains(name)
-        
         return name
     }
     
