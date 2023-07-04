@@ -27,8 +27,9 @@ class DocumentsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupTableView()
-        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
+        setupView()
+        updateTableView()
+        updateNavigationBar()
     }
     
     // MARK: - UITableViewDataSource Methods
@@ -43,8 +44,14 @@ class DocumentsTableViewController: UITableViewController {
         
         let itemName = items[indexPath.row]
         
-        if let image = FileManagerHelper.shared.retrieveImage(withName: itemName) {
-            configureImageContent(&contentConfiguration, with: image)
+        switch FileManagerHelper.shared.contentType(ofItemWithName: itemName) {
+        case .image:
+            if let image = FileManagerHelper.shared.retrieveImage(withName: itemName) {
+                contentConfiguration.image = image
+                configureImageContent(&contentConfiguration, with: image)
+            }
+        case .folder:
+            contentConfiguration.image = UIImage(systemName: "folder")
         }
         
         let secondaryText = createSecondaryText(for: itemName)
@@ -57,19 +64,23 @@ class DocumentsTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedItem = items[indexPath.row]
-        //open folder
-        if FileManagerHelper.shared.isDirectory(itemName: selectedItem) {
+        
+        switch FileManagerHelper.shared.contentType(ofItemWithName: selectedItem) {
+        case .folder:
+            // open folder
             FileManagerHelper.shared.changeCurrentDirectory(to: selectedItem)
             items = FileManagerHelper.shared.contentsOfCurrentDirectory()
-           
+            title = FileManagerHelper.shared.getCurrentDirectoryName()
+            updateNavigationBar()
             tableView.reloadData()
-        } else {
-            //open image
-            let image = FileManagerHelper.shared.retrieveImage(withName: selectedItem)
-            let imageDetailViewController = ImageDetailViewController()
-            imageDetailViewController.image = image
             
-            navigationController?.pushViewController(imageDetailViewController, animated: true)
+        case .image:
+            // open image
+            if let image = FileManagerHelper.shared.retrieveImage(withName: selectedItem) {
+                let imageDetailViewController = ImageDetailViewController()
+                imageDetailViewController.image = image
+                navigationController?.pushViewController(imageDetailViewController, animated: true)
+            }
         }
     }
     
@@ -85,8 +96,7 @@ class DocumentsTableViewController: UITableViewController {
     
     //MARK: - Private
     
-    private func setupTableView() {
-        title = "Documents"
+    private func updateTableView() {
         let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
         let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
         items = images + folders
@@ -126,10 +136,26 @@ class DocumentsTableViewController: UITableViewController {
         return secondaryText
     }
     
+    private func setupView() {
+        
+    }
+    
+    private func updateNavigationBar() {
+        if FileManagerHelper.shared.isInRootDirectory() {
+            title = "Documents"
+            navigationItem.leftBarButtonItem = nil
+        } else {
+            title = FileManagerHelper.shared.getCurrentDirectoryName()
+            navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
+        }
+    }
+    
     @objc func goBack() {
-        FileManagerHelper.shared.goBackToParentDirectory()
-        items = FileManagerHelper.shared.contentsOfCurrentDirectory()
-        tableView.reloadData()
+        if FileManagerHelper.shared.goBackToParentDirectory() {
+            items = FileManagerHelper.shared.contentsOfCurrentDirectory()
+            updateNavigationBar()
+            tableView.reloadData()
+        }
     }
 }
 

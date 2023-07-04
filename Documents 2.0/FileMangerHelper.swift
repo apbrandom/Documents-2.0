@@ -10,48 +10,29 @@ import UIKit
 class FileManagerHelper {
     
     static let shared = FileManagerHelper()
-    
+    private var rootDirectory: URL!
     private var currentDirectory: URL!
     
     private init() {
-           self.currentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
-       }
+        self.rootDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+        self.currentDirectory = rootDirectory
+    }
+    
+    func isInRootDirectory() -> Bool {
+        return currentDirectory.path == rootDirectory.path
+    }
     
     private func fileURL(forName name: String) -> URL {
         return currentDirectory.appendingPathComponent(name)
     }
     
-    func isDirectory(itemName: String) -> Bool {
-        let fileURL = fileURL(forName: itemName)
-        var isDir: ObjCBool = false
-        FileManager.default.fileExists(atPath: fileURL.path, isDirectory: &isDir)
-        return isDir.boolValue
-    }
-    
-    func existingItems() -> [String] {
+    func contentsOfCurrentDirectory() -> [String] {
         do {
             return try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
         } catch {
-            print("Error retrieving contents of directory: \(error)")
+            print("Error reading contents of directory: \(error)")
             return []
         }
-    }
-    
-    func generateName(for type: ContentType) -> String {
-        let existingItems = self.existingItems()
-        var counter = 0
-        var name: String
-        
-        repeat {
-            switch type {
-            case .image:
-                name = "image" + (counter == 0 ? "" : "_\(counter)") + ".jpeg"
-            case .folder:
-                name = "New Folder" + (counter == 0 ? "" : "_\(counter)")
-            }
-            counter += 1
-        } while existingItems.contains(name)
-        return name
     }
     
     func createNewFolder(withName name: String) -> Bool {
@@ -91,7 +72,7 @@ class FileManagerHelper {
     
     func retrieveContent(ofType type: ContentType) -> [String] {
         do {
-            let files = try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
+            let files = self.contentsOfCurrentDirectory()
             switch type {
             case .image:
                 return files.filter { $0.hasSuffix(".jpg") || $0.hasSuffix(".jpeg") }
@@ -103,9 +84,16 @@ class FileManagerHelper {
                     return isDir.boolValue
                 }
             }
-        } catch {
-            print("Error reading contents of directory: \(error)")
-            return []
+        }
+    }
+    
+    func contentType(ofItemWithName itemName: String) -> ContentType {
+        if isDirectory(itemName: itemName) {
+            return .folder
+        } else if itemName.hasSuffix(".jpg") || itemName.hasSuffix(".jpeg") {
+            return .image
+        } else {
+            return .image
         }
     }
     
@@ -131,7 +119,34 @@ class FileManagerHelper {
         }
     }
     
+    func generateName(for type: ContentType) -> String {
+        let existingItems = self.contentsOfCurrentDirectory()
+        var counter = 0
+        var name: String
+        
+        repeat {
+            switch type {
+            case .image:
+                name = "image" + (counter == 0 ? "" : "_\(counter)") + ".jpeg"
+            case .folder:
+                name = "New Folder" + (counter == 0 ? "" : "_\(counter)")
+            }
+            counter += 1
+        } while existingItems.contains(name)
+        return name
+    }
+    
     //MARK: - Navigation
+    
+    func isDirectory(itemName: String) -> Bool {
+        let fileURL = fileURL(forName: itemName)
+        let resourceValues = try? fileURL.resourceValues(forKeys: [.isDirectoryKey])
+        return resourceValues?.isDirectory ?? false
+    }
+    
+    func getCurrentDirectoryName() -> String {
+        return currentDirectory.lastPathComponent
+    }
     
     func changeCurrentDirectory(to subdirectory: String) {
         let newDirectory = currentDirectory.appendingPathComponent(subdirectory, isDirectory: true)
@@ -143,18 +158,13 @@ class FileManagerHelper {
             print("Subdirectory does not exist or is not a directory")
         }
     }
-
-       
-       func goBackToParentDirectory() {
-           currentDirectory.deleteLastPathComponent()
-       }
-       
-       func contentsOfCurrentDirectory() -> [String] {
-           do {
-               return try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
-           } catch {
-               print("Error reading contents of directory: \(error)")
-               return []
-           }
-       }
+    
+    func goBackToParentDirectory() -> Bool {
+        let parentDirectory = currentDirectory.deletingLastPathComponent()
+        if parentDirectory.path >= rootDirectory.path {
+            currentDirectory = parentDirectory
+            return true
+        }
+        return false
+    }
 }
