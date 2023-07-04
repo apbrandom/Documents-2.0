@@ -27,7 +27,6 @@ class DocumentsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        setupView()
         updateTableView()
         updateNavigationBar()
     }
@@ -51,7 +50,8 @@ class DocumentsTableViewController: UITableViewController {
                 configureImageContent(&contentConfiguration, with: image)
             }
         case .folder:
-            contentConfiguration.image = UIImage(systemName: "folder")
+            let folderConfig = UIImage.SymbolConfiguration(pointSize: 25)
+            contentConfiguration.image = UIImage(systemName: "folder", withConfiguration: folderConfig)
         }
         
         let secondaryText = createSecondaryText(for: itemName)
@@ -134,10 +134,6 @@ class DocumentsTableViewController: UITableViewController {
         }
         
         return secondaryText
-    }
-    
-    private func setupView() {
-        
     }
     
     private func updateNavigationBar() {

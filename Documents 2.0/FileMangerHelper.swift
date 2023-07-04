@@ -86,6 +86,7 @@ class FileManagerHelper {
             }
         }
     }
+
     
     func contentType(ofItemWithName itemName: String) -> ContentType {
         if isDirectory(itemName: itemName) {
