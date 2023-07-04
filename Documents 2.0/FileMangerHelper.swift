@@ -11,20 +11,26 @@ class FileManagerHelper {
     
     static let shared = FileManagerHelper()
     
-    private init() { }
+    private var currentDirectory: URL!
     
-    private func getDocumentsDirectory() -> URL {
-        let path = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        return path[0]
-    }
+    private init() {
+           self.currentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
+       }
     
     private func fileURL(forName name: String) -> URL {
-        return getDocumentsDirectory().appendingPathComponent(name)
+        return currentDirectory.appendingPathComponent(name)
+    }
+    
+    func isDirectory(itemName: String) -> Bool {
+        let fileURL = fileURL(forName: itemName)
+        var isDir: ObjCBool = false
+        FileManager.default.fileExists(atPath: fileURL.path, isDirectory: &isDir)
+        return isDir.boolValue
     }
     
     func existingItems() -> [String] {
         do {
-            return try FileManager.default.contentsOfDirectory(atPath: getDocumentsDirectory().path)
+            return try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
         } catch {
             print("Error retrieving contents of directory: \(error)")
             return []
@@ -61,6 +67,7 @@ class FileManagerHelper {
     
     func saveImage(_ image: UIImage, withName name: String) -> Bool {
         let imagePath = fileURL(forName: name)
+        
         guard let jpegData = image.jpegData(compressionQuality: 0.8) else { return false }
         do {
             try jpegData.write(to: imagePath)
@@ -84,7 +91,7 @@ class FileManagerHelper {
     
     func retrieveContent(ofType type: ContentType) -> [String] {
         do {
-            let files = try FileManager.default.contentsOfDirectory(atPath: getDocumentsDirectory().path)
+            let files = try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
             switch type {
             case .image:
                 return files.filter { $0.hasSuffix(".jpg") || $0.hasSuffix(".jpeg") }
@@ -123,4 +130,31 @@ class FileManagerHelper {
             return nil
         }
     }
+    
+    //MARK: - Navigation
+    
+    func changeCurrentDirectory(to subdirectory: String) {
+        let newDirectory = currentDirectory.appendingPathComponent(subdirectory, isDirectory: true)
+        
+        var isDir: ObjCBool = false
+        if FileManager.default.fileExists(atPath: newDirectory.path, isDirectory: &isDir), isDir.boolValue {
+            currentDirectory = newDirectory
+        } else {
+            print("Subdirectory does not exist or is not a directory")
+        }
+    }
+
+       
+       func goBackToParentDirectory() {
+           currentDirectory.deleteLastPathComponent()
+       }
+       
+       func contentsOfCurrentDirectory() -> [String] {
+           do {
+               return try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
+           } catch {
+               print("Error reading contents of directory: \(error)")
+               return []
+           }
+       }
 }

@@ -18,17 +18,17 @@ class DocumentsTableViewController: UITableViewController {
     @IBAction func createNewFolderAction(_ sender: Any) {
         let newFolderName = FileManagerHelper.shared.generateName(for: .folder)
         let folderCreated = FileManagerHelper.shared.createNewFolder(withName: newFolderName)
-        
         if folderCreated {
             items.insert(newFolderName, at: 0)
-                tableView.reloadData()
-            }
+            tableView.reloadData()
+        }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupTableView()
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
     }
     
     // MARK: - UITableViewDataSource Methods
@@ -50,24 +50,29 @@ class DocumentsTableViewController: UITableViewController {
         let secondaryText = createSecondaryText(for: itemName)
         contentConfiguration.secondaryText = secondaryText
         contentConfiguration.text = itemName
-
+        
         cell.contentConfiguration = contentConfiguration
         return cell
     }
-
+    
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let imageName = items[indexPath.row]
-        
-        if let image = FileManagerHelper.shared.retrieveImage(withName: imageName) {
+        let selectedItem = items[indexPath.row]
+        //open folder
+        if FileManagerHelper.shared.isDirectory(itemName: selectedItem) {
+            FileManagerHelper.shared.changeCurrentDirectory(to: selectedItem)
+            items = FileManagerHelper.shared.contentsOfCurrentDirectory()
+           
+            tableView.reloadData()
+        } else {
+            //open image
+            let image = FileManagerHelper.shared.retrieveImage(withName: selectedItem)
             let imageDetailViewController = ImageDetailViewController()
             imageDetailViewController.image = image
             
             navigationController?.pushViewController(imageDetailViewController, animated: true)
         }
-        
-        tableView.deselectRow(at: indexPath, animated: true)
     }
-
+    
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
             let imageName = items[indexPath.row]
@@ -102,7 +107,7 @@ class DocumentsTableViewController: UITableViewController {
         contentConfiguration.imageProperties.maximumSize = CGSize(width: 40, height: 40)
         contentConfiguration.imageProperties.cornerRadius = 5
     }
-
+    
     private func createSecondaryText(for itemName: String) -> String {
         var secondaryText = ""
         
@@ -119,6 +124,12 @@ class DocumentsTableViewController: UITableViewController {
         }
         
         return secondaryText
+    }
+    
+    @objc func goBack() {
+        FileManagerHelper.shared.goBackToParentDirectory()
+        items = FileManagerHelper.shared.contentsOfCurrentDirectory()
+        tableView.reloadData()
     }
 }
 
