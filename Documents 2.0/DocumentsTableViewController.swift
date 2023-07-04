@@ -50,7 +50,7 @@ class DocumentsTableViewController: UITableViewController {
                 configureImageContent(&contentConfiguration, with: image)
             }
         case .folder:
-            let folderConfig = UIImage.SymbolConfiguration(pointSize: 25)
+            let folderConfig = UIImage.SymbolConfiguration(pointSize: 23)
             contentConfiguration.image = UIImage(systemName: "folder", withConfiguration: folderConfig)
         }
         

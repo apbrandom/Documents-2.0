@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CB30A7A52A4E04E8008B72F5 /* ImageDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB30A7A42A4E04E8008B72F5 /* ImageDetailViewController.swift */; };
+		CB332B0A2A5460F20022590C /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = CB332B092A5460F20022590C /* KeychainAccess */; };
 		CBB67FC52A4F0E4100FD3F6D /* ContentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB67FC42A4F0E4100FD3F6D /* ContentType.swift */; };
 		CBEC19262A4DAAF30049406B /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEC19252A4DAAF30049406B /* AppDelegate.swift */; };
 		CBEC19282A4DAAF30049406B /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBEC19272A4DAAF30049406B /* SceneDelegate.swift */; };
@@ -37,6 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CB332B0A2A5460F20022590C /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -92,6 +94,9 @@
 			dependencies = (
 			);
 			name = "Documents 2.0";
+			packageProductDependencies = (
+				CB332B092A5460F20022590C /* KeychainAccess */,
+			);
 			productName = "Documents 2.0";
 			productReference = CBEC19222A4DAAF30049406B /* Documents 2.0.app */;
 			productType = "com.apple.product-type.application";
@@ -120,6 +125,9 @@
 				Base,
 			);
 			mainGroup = CBEC19192A4DAAF30049406B;
+			packageReferences = (
+				CB332B082A5460F20022590C /* XCRemoteSwiftPackageReference "KeychainAccess" */,
+			);
 			productRefGroup = CBEC19232A4DAAF30049406B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -377,6 +385,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CB332B082A5460F20022590C /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CB332B092A5460F20022590C /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CB332B082A5460F20022590C /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CBEC191A2A4DAAF30049406B /* Project object */;
 }
