@@ -12,11 +12,14 @@ class FileManagerHelper {
     static let shared = FileManagerHelper()
     private var rootDirectory: URL!
     private var currentDirectory: URL!
+    private(set) var items: [String] = []
     
     private init() {
         self.rootDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
         self.currentDirectory = rootDirectory
     }
+    
+    
     
     func isInRootDirectory() -> Bool {
         return currentDirectory.path == rootDirectory.path
@@ -26,12 +29,12 @@ class FileManagerHelper {
         return currentDirectory.appendingPathComponent(name)
     }
     
-    func contentsOfCurrentDirectory() -> [String] {
+    func contentsOfCurrentDirectory() {
         do {
-            return try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
+            self.items = try FileManager.default.contentsOfDirectory(atPath: currentDirectory.path)
         } catch {
             print("Error reading contents of directory: \(error)")
-            return []
+            self.items = []
         }
     }
     
@@ -71,23 +74,22 @@ class FileManagerHelper {
     }
     
     func retrieveContent(ofType type: ContentType) -> [String] {
-        do {
-            let files = self.contentsOfCurrentDirectory()
-            switch type {
-            case .image:
-                return files.filter { $0.hasSuffix(".jpg") || $0.hasSuffix(".jpeg") }
-            case .folder:
-                return files.filter { file in
-                    var isDir: ObjCBool = false
-                    let fullPath = fileURL(forName: file).path
-                    FileManager.default.fileExists(atPath: fullPath, isDirectory: &isDir)
-                    return isDir.boolValue
-                }
+        let files = self.items
+        switch type {
+        case .image:
+            return files.filter { $0.hasSuffix(".jpg") || $0.hasSuffix(".jpeg") }
+        case .folder:
+            return files.filter { file in
+                var isDir: ObjCBool = false
+                let fullPath = fileURL(forName: file).path
+                FileManager.default.fileExists(atPath: fullPath, isDirectory: &isDir)
+                return isDir.boolValue
             }
         }
     }
 
-    
+
+
     func contentType(ofItemWithName itemName: String) -> ContentType {
         if isDirectory(itemName: itemName) {
             return .folder
@@ -121,10 +123,10 @@ class FileManagerHelper {
     }
     
     func generateName(for type: ContentType) -> String {
-        let existingItems = self.contentsOfCurrentDirectory()
+        let existingItems = self.items
         var counter = 0
         var name: String
-        
+
         repeat {
             switch type {
             case .image:
@@ -168,4 +170,29 @@ class FileManagerHelper {
         }
         return false
     }
+    
+    //MARK: - Sorting
+    
+    func sortItemsByName(_ items: [String]) -> [String] {
+        return items.sorted { $0.localizedStandardCompare($1) == .orderedAscending }
+    }
+    
+    func sortItemsByNameReversed(_ items: [String]) -> [String] {
+        return items.sorted { $0.localizedStandardCompare($1) == .orderedDescending }
+    }
+    
+    func updateItems() {
+        let images = retrieveContent(ofType: .image)
+        let folders = retrieveContent(ofType: .folder)
+        items = images + folders
+    }
+    
+    
+    func addItem(_ item: String) {
+        items.insert(item, at: 0)
+    }
+    
+    func removeItem(at index: Int) {
+           items.remove(at: index)
+       }
 }

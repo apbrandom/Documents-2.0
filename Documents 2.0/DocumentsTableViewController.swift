@@ -9,7 +9,7 @@ import PhotosUI
 
 class DocumentsTableViewController: UITableViewController {
     
-    var items: [String] = []
+//    var items: [String] = []
     
     @IBAction func addPhotoAction(_ sender: Any) {
         setupPickerController()
@@ -19,7 +19,8 @@ class DocumentsTableViewController: UITableViewController {
         let newFolderName = FileManagerHelper.shared.generateName(for: .folder)
         let folderCreated = FileManagerHelper.shared.createNewFolder(withName: newFolderName)
         if folderCreated {
-            items.insert(newFolderName, at: 0)
+            FileManagerHelper.shared.addItem(newFolderName)
+//            items.insert(newFolderName, at: 0)
             tableView.reloadData()
         }
     }
@@ -27,21 +28,23 @@ class DocumentsTableViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        updateTableView()
+        
+        FileManagerHelper.shared.updateItems()
+//        updateTableView()
         updateNavigationBar()
     }
     
     // MARK: - UITableViewDataSource Methods
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return items.count
+        return FileManagerHelper.shared.items.count
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PhotoCell", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
         var contentConfiguration = UIListContentConfiguration.cell()
         
-        let itemName = items[indexPath.row]
+        let itemName = FileManagerHelper.shared.items[indexPath.row]
         
         switch FileManagerHelper.shared.contentType(ofItemWithName: itemName) {
         case .image:
@@ -63,18 +66,21 @@ class DocumentsTableViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedItem = items[indexPath.row]
+        let selectedItem = FileManagerHelper.shared.items[indexPath.row]
         
         switch FileManagerHelper.shared.contentType(ofItemWithName: selectedItem) {
+        
         case .folder:
+            
             // open folder
             FileManagerHelper.shared.changeCurrentDirectory(to: selectedItem)
-            items = FileManagerHelper.shared.contentsOfCurrentDirectory()
+            FileManagerHelper.shared.contentsOfCurrentDirectory()
             title = FileManagerHelper.shared.getCurrentDirectoryName()
             updateNavigationBar()
             tableView.reloadData()
             
         case .image:
+            
             // open image
             if let image = FileManagerHelper.shared.retrieveImage(withName: selectedItem) {
                 let imageDetailViewController = ImageDetailViewController()
@@ -86,21 +92,22 @@ class DocumentsTableViewController: UITableViewController {
     
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let imageName = items[indexPath.row]
+            let imageName = FileManagerHelper.shared.items[indexPath.row]
             if FileManagerHelper.shared.deleteImage(withName: imageName) {
-                items.remove(at: indexPath.row)
+                FileManagerHelper.shared.removeItem(at: indexPath.row)
                 tableView.deleteRows(at: [indexPath], with: .fade)
             }
         }
     }
     
+    
     //MARK: - Private
     
-    private func updateTableView() {
-        let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
-        let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
-        items = images + folders
-    }
+//    private func updateTableView() {
+//        let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
+//        let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
+//        items = images + folders
+//    }
     
     private func setupPickerController() {
         var configuration = PHPickerConfiguration()
@@ -148,7 +155,7 @@ class DocumentsTableViewController: UITableViewController {
     
     @objc func goBack() {
         if FileManagerHelper.shared.goBackToParentDirectory() {
-            items = FileManagerHelper.shared.contentsOfCurrentDirectory()
+            FileManagerHelper.shared.contentsOfCurrentDirectory()
             updateNavigationBar()
             tableView.reloadData()
         }
@@ -169,7 +176,7 @@ extension DocumentsTableViewController: PHPickerViewControllerDelegate {
                 let imageName = FileManagerHelper.shared.generateName(for: .image)
                 if FileManagerHelper.shared.saveImage(image, withName: imageName) {
                     DispatchQueue.main.async {
-                        self?.items.insert(imageName, at: 0)
+                        FileManagerHelper.shared.addItem(imageName)
                         self?.tableView.reloadData()
                     }
                 }
