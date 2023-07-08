@@ -42,6 +42,7 @@ class FileManagerHelper {
         let folderPath = fileURL(forName: name)
         do {
             try FileManager.default.createDirectory(at: folderPath, withIntermediateDirectories: true)
+            contentsOfCurrentDirectory()
             return true
         } catch {
             print("Error creating folder: \(error)")

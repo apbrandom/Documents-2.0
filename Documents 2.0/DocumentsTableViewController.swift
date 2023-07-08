@@ -20,17 +20,15 @@ class DocumentsTableViewController: UITableViewController {
         let folderCreated = FileManagerHelper.shared.createNewFolder(withName: newFolderName)
         if folderCreated {
             FileManagerHelper.shared.addItem(newFolderName)
-//            items.insert(newFolderName, at: 0)
-            tableView.reloadData()
+            apdateTableView()
+
         }
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        
-        FileManagerHelper.shared.updateItems()
-//        updateTableView()
+        apdateTableView()
         updateNavigationBar()
     }
     
@@ -103,12 +101,6 @@ class DocumentsTableViewController: UITableViewController {
     
     //MARK: - Private
     
-//    private func updateTableView() {
-//        let images = FileManagerHelper.shared.retrieveContent(ofType: .image)
-//        let folders = FileManagerHelper.shared.retrieveContent(ofType: .folder)
-//        items = images + folders
-//    }
-    
     private func setupPickerController() {
         var configuration = PHPickerConfiguration()
         configuration.selectionLimit = 1
@@ -151,6 +143,12 @@ class DocumentsTableViewController: UITableViewController {
             title = FileManagerHelper.shared.getCurrentDirectoryName()
             navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Back", style: .plain, target: self, action: #selector(goBack))
         }
+    }
+    
+    private func apdateTableView() {
+        FileManagerHelper.shared.updateItems()
+        FileManagerHelper.shared.contentsOfCurrentDirectory()
+        tableView.reloadData()
     }
     
     @objc func goBack() {
