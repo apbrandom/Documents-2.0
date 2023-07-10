@@ -41,7 +41,7 @@ class SettingsTableViewController: UITableViewController  {
             cell.sortSegmentedControl.selectedSegmentIndex = sortingOption
             
             cell.sortSegmentedControl.addTarget(self, action: #selector(sortOptionChanged(_:)), for: .valueChanged)
-            
+            cell.selectionStyle = .none
             return cell
             
         case 1:
@@ -52,6 +52,7 @@ class SettingsTableViewController: UITableViewController  {
             
             cell.changePasswordButton.addTarget(self, action: #selector(changePasswordTapped(_:)), for: .touchUpInside)
             
+            cell.selectionStyle = .none
             return cell
             
         default:
@@ -62,23 +63,24 @@ class SettingsTableViewController: UITableViewController  {
     // MARK: - Actions
     
     @objc func sortOptionChanged(_ sender: UISegmentedControl) {
-//        UserDefaults.standard.setValue(sender.selectedSegmentIndex, forKey: "sortOption")
+        UserDefaults.standard.setValue(sender.selectedSegmentIndex, forKey: "sortOption")
+        var items = FileManagerHelper.shared.items
+        switch sender.selectedSegmentIndex {
+        case 0: // Ascending order
+            items = FileManagerHelper.shared.sortItemsByName(items)
+        case 1: // Descending order
+            items = FileManagerHelper.shared.sortItemsByNameReversed(items)
+        default:
+            break
+        }
         
-//        switch sender.selectedSegmentIndex {
-//        case 0: // Ascending order
-//            items = FileManagerHelper.shared.sortItemsByName(items)
-//        case 1: // Descending order
-//            items = FileManagerHelper.shared.sortItemsByNameReversed(items)
-//        default:
-//            break
-//        }
+        FileManagerHelper.shared.updateItems(items)
         
-        // Reload the table view to reflect the sorted items
-//        tableView.reloadData()
+        tableView.reloadData()
     }
-    
+
     @objc func changePasswordTapped(_ sender: UIButton) {
-        // Handle change password
+        performSegue(withIdentifier: "ShowChangePassword", sender: true)
     }
 }
 

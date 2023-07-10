@@ -19,8 +19,6 @@ class FileManagerHelper {
         self.currentDirectory = rootDirectory
     }
     
-    
-    
     func isInRootDirectory() -> Bool {
         return currentDirectory.path == rootDirectory.path
     }
@@ -88,8 +86,6 @@ class FileManagerHelper {
             }
         }
     }
-
-
 
     func contentType(ofItemWithName itemName: String) -> ContentType {
         if isDirectory(itemName: itemName) {
@@ -172,6 +168,19 @@ class FileManagerHelper {
         return false
     }
     
+    func updateItems(_ newItems: [String]) {
+        self.items = newItems
+    }
+
+
+    func addItem(_ item: String) {
+        items.insert(item, at: 0)
+    }
+    
+    func removeItem(at index: Int) {
+           items.remove(at: index)
+       }
+    
     //MARK: - Sorting
     
     func sortItemsByName(_ items: [String]) -> [String] {
@@ -181,19 +190,5 @@ class FileManagerHelper {
     func sortItemsByNameReversed(_ items: [String]) -> [String] {
         return items.sorted { $0.localizedStandardCompare($1) == .orderedDescending }
     }
-    
-    func updateItems() {
-        let images = retrieveContent(ofType: .image)
-        let folders = retrieveContent(ofType: .folder)
-        items = images + folders
-    }
-    
-    
-    func addItem(_ item: String) {
-        items.insert(item, at: 0)
-    }
-    
-    func removeItem(at index: Int) {
-           items.remove(at: index)
-       }
+
 }

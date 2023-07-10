@@ -29,33 +29,38 @@ class PasswordViewController: UIViewController {
     
     @IBAction func passwordActionButtonTapped(_ sender: UIButton) {
         guard let password = passwordTextField.text, !password.isEmpty else {
+            showAlert(title: "Error", message: "Please enter the password")
             return
         }
         
+        guard password.count >= 4 else {
+            showAlert(title: "Error", message: "Please enter the password with a minimum of four symbols ")
+            return
+        }
+        
+        // If the password already exists in Keychain
         if keychain[passwordKey] != nil {
-            
-            //check the password
             if password == keychain[passwordKey] {
-                
-                // go to Documents
                 self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
             } else {
-               
-                // show error
+                showAlert(title: "Error", message: "Bad Password")
             }
+            
+            // If the password has not yet been set
         } else {
+            
+            // If the user has already entered the password once and is now repeating it
             if isConfirmingPassword {
                 
-                // проверяем совпадение паролей
+                // Check if the password entered matches the password entered for the first time
                 if password == passwordTextField.placeholder {
                     keychain[passwordKey] = password
-                    
-                    // go to Documents
-                    self.performSegue(withIdentifier: "ShowDocuments", sender: self)
+                    self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
                 } else {
-                    //show error "password is not the same"
+                    showAlert(title: "Error", message: "New password not the same")
                 }
                 
+                // If you are entering a new password for the first time
             } else {
                 isConfirmingPassword = true
                 passwordTextField.placeholder = password

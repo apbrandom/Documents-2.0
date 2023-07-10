@@ -9,8 +9,6 @@ import PhotosUI
 
 class DocumentsTableViewController: UITableViewController {
     
-//    var items: [String] = []
-    
     @IBAction func addPhotoAction(_ sender: Any) {
         setupPickerController()
     }
@@ -30,6 +28,12 @@ class DocumentsTableViewController: UITableViewController {
         
         apdateTableView()
         updateNavigationBar()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        tableView.reloadData()
     }
     
     // MARK: - UITableViewDataSource Methods
@@ -146,7 +150,6 @@ class DocumentsTableViewController: UITableViewController {
     }
     
     private func apdateTableView() {
-        FileManagerHelper.shared.updateItems()
         FileManagerHelper.shared.contentsOfCurrentDirectory()
         tableView.reloadData()
     }
