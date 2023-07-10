@@ -10,14 +10,9 @@ import KeychainAccess
 
 class ChangePasswordViewController: UIViewController {
     
-    
     @IBOutlet weak var currentPasswordTextField: UITextField!
-    
     @IBOutlet weak var newPasswordTextField: UITextField!
-    
     @IBOutlet weak var repeatNewPasswordTextField: UITextField!
-    
-    
     
     let keychain = Keychain(service: "ru.apbrandom.Documents-2-0")
     let passwordKey = "userPassword"
@@ -34,26 +29,26 @@ class ChangePasswordViewController: UIViewController {
               !currentPassword.isEmpty,
               !newPassword.isEmpty,
               !repeatNewPassword.isEmpty else {
-            showAlert(title: "Error", message: "Please enter all fields")
+            Alert.showBasic(title: "Error", message: "Please enter all fields", on: self)
             return
         }
         
         if currentPassword == keychain[passwordKey] {
             if newPassword == repeatNewPassword {
                 keychain[passwordKey] = newPassword
-                showAlert(title: "Success", message: "Your password has been changed successfully")
+                Alert.showBasic(title: "Success", message: "Your password has been changed successfully", on: self)
             } else {
-                showAlert(title: "Error", message: "The new password is not a match")
+                Alert.showBasic(title: "Error", message: "The new password is not a match", on: self)
             }
         } else {
-            showAlert(title: "Error", message: "Bad curruent password")
+            Alert.showBasic(title: "Error", message: "Bad curruent password", on: self)
         }
     }
     
     @IBAction func deletePasswordButtonTapped(_ sender: Any) {
         do {
             try keychain.remove(passwordKey)
-            showAlert(title: "Success", message: "Your password has been deleted successfully")
+            Alert.showBasic(title: "Success", message: "Your password has been deleted successfully", on: self)
         } catch let error {
             print("Error deleting password: \(error)")
         }

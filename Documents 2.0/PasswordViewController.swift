@@ -29,12 +29,14 @@ class PasswordViewController: UIViewController {
     
     @IBAction func passwordActionButtonTapped(_ sender: UIButton) {
         guard let password = passwordTextField.text, !password.isEmpty else {
-            showAlert(title: "Error", message: "Please enter the password")
+            Alert.showBasic(title: "Error", message: "Please enter the password", on: self)
+//            showAlert(title: "Error", message: "Please enter the password")
             return
         }
         
         guard password.count >= 4 else {
-            showAlert(title: "Error", message: "Please enter the password with a minimum of four symbols ")
+            Alert.showBasic(title: "Error", message: "Please enter the password with a minimum of four symbols", on: self)
+//            showAlert(title: "Error", message: "Please enter the password with a minimum of four symbols ")
             return
         }
         
@@ -43,7 +45,8 @@ class PasswordViewController: UIViewController {
             if password == keychain[passwordKey] {
                 self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
             } else {
-                showAlert(title: "Error", message: "Bad Password")
+                Alert.showBasic(title: "Error", message: "Bad Password", on: self)
+//                showAlert(title: "Error", message: "Bad Password")
             }
             
             // If the password has not yet been set
@@ -57,7 +60,7 @@ class PasswordViewController: UIViewController {
                     keychain[passwordKey] = password
                     self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
                 } else {
-                    showAlert(title: "Error", message: "New password not the same")
+                    Alert.showBasic(title: "Error", message: "New password not the same", on: self)
                 }
                 
                 // If you are entering a new password for the first time
