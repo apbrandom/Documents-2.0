@@ -10,7 +10,7 @@ import KeychainAccess
 
 class PasswordViewController: UIViewController {
     
-    enum LoginError: Error {
+    enum AuthorizationError: Error {
         case incompleteForm
         case invalidPassword
         case incorrectPasswordLenght
@@ -36,67 +36,83 @@ class PasswordViewController: UIViewController {
     
     @IBAction func passwordActionButtonTapped(_ sender: UIButton) {
         
-        do {
-            if keychain[passwordKey] != nil {
-                try Login()
-                self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
+        if keychain[passwordKey] != nil {
+                switch Login() {
+                case .success:
+                    self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
+                case .failure(let error):
+                    handleError(error)
+                }
             } else {
-                try createPassword()
+                switch createPassword() {
+                case .success:
+                    self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
+                case .failure(let error):
+                    handleError(error)
+                }
             }
-        } catch LoginError.incompleteForm {
+    }
+    
+    func handleError(_ error: AuthorizationError) {
+        switch error {
+        case .incompleteForm:
             Alert.showBasic(title: "Incomplete Form", message: "Please fill out the password filed", on: self)
-        } catch LoginError.invalidPassword {
+        case .invalidPassword:
             Alert.showBasic(title: "Invalid Password", message: "Please make sure your password correctly", on: self)
-        } catch LoginError.incorrectPasswordLenght {
+        case .incorrectPasswordLenght:
             Alert.showBasic(title: "Password Too Short", message: "Password should be at least 4 characters", on: self)
-        } catch {
-            Alert.showBasic(title: "Unable To Login", message: "There was an error when attempting to login", on: self)
+        case .repeatPassword:
+            Alert.showBasic(title: "Password not same", message: "Please make sure your new passwords the same", on: self)
         }
     }
     
-    func Login() throws {
+    func Login() -> Result<Void, AuthorizationError> {
         guard let password = passwordTextField.text else {
-            throw LoginError.incompleteForm
+            return .failure(AuthorizationError.incompleteForm)
         }
-        
+            
         if password.isEmpty {
-            throw LoginError.incompleteForm
+            return .failure(AuthorizationError.incompleteForm)
         }
-        
+            
         if password.count < 4 {
-            throw LoginError.incorrectPasswordLenght
+            return .failure(AuthorizationError.incorrectPasswordLenght)
         }
-        
+            
         if password != keychain[passwordKey] {
-            throw LoginError.invalidPassword
+            return .failure(AuthorizationError.invalidPassword)
         }
+        
+        return .success(())
     }
-    
-    func createPassword() throws {
+
+    func createPassword() -> Result<Void, AuthorizationError> {
         guard let password = passwordTextField.text else {
-            throw LoginError.incompleteForm
+            return .failure(AuthorizationError.incompleteForm)
         }
-        
+            
         if password.isEmpty {
-            throw LoginError.incompleteForm
+            return .failure(AuthorizationError.incompleteForm)
         }
-        
+            
         if password.count < 4 {
-            throw LoginError.incorrectPasswordLenght
+            return .failure(AuthorizationError.incorrectPasswordLenght)
         }
-        
+            
         if isConfirmingPassword {
             if password != passwordTextField.placeholder {
-                throw LoginError.invalidPassword
+                return .failure(AuthorizationError.repeatPassword)
             } else {
                 keychain[passwordKey] = password
-                self.performSegue(withIdentifier: "ShowTabBarController", sender: self)
+                return .success(())
             }
         } else {
             isConfirmingPassword = true
             passwordTextField.placeholder = password
             passwordTextField.text = ""
             passwordActionButton.setTitle("Repeat password", for: .normal)
+            return .success(())
         }
     }
+
 }
