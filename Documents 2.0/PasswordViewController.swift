@@ -68,7 +68,7 @@ class PasswordViewController: UIViewController {
     
     func Login() -> Result<Void, AuthorizationError> {
         guard let password = passwordTextField.text else {
-            return .failure(AuthorizationError.incompleteForm)
+            preconditionFailure("Form must not be empty")
         }
             
         if password.isEmpty {
@@ -88,7 +88,7 @@ class PasswordViewController: UIViewController {
 
     func createPassword() -> Result<Void, AuthorizationError> {
         guard let password = passwordTextField.text else {
-            return .failure(AuthorizationError.incompleteForm)
+            preconditionFailure("Form must not be empty")
         }
             
         if password.isEmpty {
